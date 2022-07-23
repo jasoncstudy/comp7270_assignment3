@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">-->
+    <script src="https://code.jquery.com/jquery-1.6.4.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/buefy/dist/buefy.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body>
+    <div id="app" class="container">
+        <b-collapse 
+            class="card" 
+            animation="slide" 
+            aria-id="contentIdForA11y3">
+            <template #trigger="props">
+                <div
+                    class="card-header"
+                    role="button"
+                    aria-controls="contentIdForA11y3"
+                    :aria-expanded="props.open">
+                    <p class="card-header-title">
+                        Assignment 3
+                    </p>
+                    <a class="card-header-icon">
+                        <b-icon
+                            :icon="props.open ? 'menu-down' : 'menu-up'">
+                        </b-icon>
+                    </a>
+                </div>
+            </template>
+
+            <div class="card-content">
+                <div class="content">
+                    Number of Chinese Festival in each mounth
+                </div>
+            </div>
+        </b-collapse> 
+        
+        <b-carousel-list v-model="test" :data="items" :items-to-show="4">
+        <template #item="list">
+            <div class="card">
+                <div class="card-image">
+                    <figure class="image is-4by3">
+                        <img :src="list.image">
+                    </figure>                 
+                </div>
+                <div class="card-content">
+                    <div class="content">
+                        <p class="title is-6">{{ list.title }}</p>
+                        
+                        <b-field grouped >
+                            <p class="subtitle is-7">{{ list.date }}</p>
+                            
+                        </b-field>
+                            <b-collapse :open="false" aria-id="contentIdForA11y1">
+                                <template #trigger="props">
+                                    <b-button 
+                                        label="Details"
+                                        type="is-info"
+                                        aria-controls="contentIdForA11y1"
+                                        :aria-expanded="props.open" />
+                                </template>
+
+                                <div class="card-content">
+                                    <div class="content">
+                                    {{list.intro}}
+                                    </div>
+                                </div>
+                            </b-collapse> 
+                    </div>
+                </div>
+              
+            </div>
+        </template>
+        </b-carousel-list>
+
+        <div>
+            <canvas id="myChart"></canvas>
+        </div>
+
+    </div>
+                
+
+               
+                
+
+    <script src="https://unpkg.com/vue@2"></script>
+    <!-- Full bundle -->
+    <script src="https://unpkg.com/buefy/dist/buefy.min.js"></script>
+
+    <script>
+            const myurl = 'https://api.npoint.io/d1f6668723337dcefe28/items';
+            let app = new Vue({
+                    data() {
+                        return {
+                            test: 0,
+                            items: []
+                        }
+                    },
+                    methods: {
+                        info(value) {
+                            this.test = value
+                        },
+                        count(str) {
+                            var cnts = this.items.filter(function(item) {
+                                return(item.date.includes(str));
+                            });
+                            return cnts.length;
+                        }
+                    },
+                    created() {
+                    fetch(myurl).then(response => response.json())
+                                .then(data =>{
+                                this.items = data;
+                                const labels = [
+                                    'Jan',
+                                    'Feb',
+                                    'March',
+                                    'April',
+                                    'May',
+                                    'June',
+                                    'July',
+                                    'Aug',
+                                    'Sept',
+                                    'Oct',
+                                    'Nov',
+                                    'Dec',
+                                ];
+                                var count_array = [];
+                                for (var i = 0; i < labels.length; i++) {
+                                    let local_cnt = app.count(labels[i]);
+                                
+                                    count_array.push(local_cnt);
+                                }
+
+                                let bardata = {
+                                    labels: labels,
+                                    datasets: [{
+                                    label: 'Number of festival by Month',
+                                    backgroundColor: 'rgb(62, 142, 208)',
+                                    borderColor: 'rgb(62, 142, 208)',
+                                    data: count_array,
+                                    }]
+                                };
+
+                                const config = {
+                                    type: 'bar',
+                                    data: bardata,
+                                  options: {
+                                       scales: {
+                                        y: {
+                                            beginAtZero: true,
+                                            ticks:{precision: 0}
+                                            
+                                        }
+                                        } 
+                                    },
+                                    };
+                                const myChart = new Chart(
+                                    document.getElementById('myChart'),
+                                    config,
+                                );
+                            });
+                    }
+            });
+            
+            
+           
+            app.$mount('#app');
+            
+</script>
+
+</body>
+</html>
